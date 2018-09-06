@@ -1,0 +1,842 @@
+
+/*LAB 05*/
+
+PUNTO 1.A
+
+1. Explore el archivo usando un navegador y un editor.
+	¿Cuáles son las ventajas de uno u otro?
+		Que en el navegador salen mejor la estructura del XML.
+2. Describa la información que encuentra en el archivo.
+	Son los departamentos con sus cursos y sus respectivas descripciones.
+
+PUNTO 1.B
+
+1. 
+	(A) /Course_Catalog/Department/Title
+	(B) /Course_Catalog/Department/Title/text()
+	(C) /Course_Catalog/Department/@Code
+2.
+	(A) /Course_Catalog/Department/Course[Title[text() = "Introduction to Databases"]]
+	(B) /Course_Catalog/Department/Course[Title[text() = "Introduction to Databases"]]/@*
+	(C) /Course_Catalog//Department/Course[Title[text() = "Introduction to Databases"]]//*
+3.
+	count( /Course_Catalog//Department/Course[Description])
+	/Course_Catalog//Department/Course[Description]/Title/text()
+4.sum(/Course_Catalog//Department/Course/@Enrollment)
+5./Course_Catalog//Department/Course[not (@Enrollment)]/Title/text()
+6./Course_Catalog/Department/Course[not(Prerequisites)]/Title/text()
+7./Course_Catalog/Department/Course[@Number != parent::/Course/@Number and  not(@Number=parent::/Course/Prerequisites/Prereq/text())]/Title/text()
+8./Course_Catalog/Department/Course[ancestor::*/Chair/Professor/Last_Name=Instructors/Professor/Last_Name]/Title/text()
+9./Course_Catalog/Department/Course[@Number != parent::*/Course/@Number and Instructors/Professor/Last_Name/text() = parent::*/Course/Instructors/Professor/Last_Name/text()]/Title/text()
+10./Course_Catalog/Department/Chair[not(Professor/Last_Name/text() = parent::*/Course/Instructors/Professor/Last_Name/text())]/Professor/Last_Name/text()
+
+PUNTO 1.C
+
+1. /Course_Catalog//Title
+2. /Course_Catalog/Department/Chair/Professor/Last_Name
+3. /Course_Catalog/Department/Chair/Professor/Last_Name
+4. /Course_Catalog/Department/Course[Prerequisites/Prereq/text()= "CS106B"]/Title
+5. /Course_Catalog/Department//(Professor | Lecturer)[Middle_Initial]/Last_Name
+6. /Course_Catalog/Department/Course[contains(Description/text(),"Cross-listed")]/Title/text()
+7. /Course_Catalog/Department[@Code= "CS"]/Course/@Enrollment
+8. /Course_Catalog/Department/Course[contains(Description/text(),"system") and @Enrollment>100]/Instructors/(Professor|Lecturer)/Last_Name/text()
+9. /Course_Catalog/Department/Course[count(Instructors/*)>2]/Title
+10. /Course_Catalog/Department/Course[@Enrollment>avg(/Course_Catalog/Department/Course/@Enrollment)]/@Number
+	 avg(/Course_Catalog/Department/Course/@Enrollment)
+11. /Course_Catalog/Department/Course[Instructors[not(Lecturer)]]/@Number
+12. Course_Catalog/Department/Course[Instructors//Last_Name/text()=parent::*/Chair/Professor/Last_Name/text()]/Title/text()
+13. /Course_Catalog/Department/Course[Instructors[Professor/Last_Name[text()="Ng"]  and Professor/Last_Name[text()="Thrun"] ]]/Title/text()
+14. /Course_Catalog/Department/Course[Prerequisites/Prereq/text() =  /Course_Catalog/Department/Course[Instructors/Professor[Last_Name/text()="Roberts" and First_Name/text()="Eric"]]/@Number]/@Number
+15. /Course_Catalog/Department/Course[Description[contains(text(),"system")] and @Enrollment >100]/Instructors/(Professor | Lecturer)/Last_Name
+
+Punto 1.D
+
+1. Los nombres de los cursos que tienen la cantidad mas pequeña de instructores
+/Course_Catalog/Department/Course/Instructors[count(*)=min(/Course_Catalog/Department/Course/Instructors/count(*))]/parent::Course/@Number
+2. Los nombres de los cursos que tienen la cantidad mayor de instructores
+/Course_Catalog/Department/Course/Instructors[count(*)=max(/Course_Catalog/Department/Course/Instructors/count(*))]/parent::Course/@Number
+3. El numero de los cursos donde enrollment es mayor al avg del enrollment
+/Course_Catalog/Department/Course[@Enrollment>avg(/Course_Catalog/Department/Course/@Enrollment)]/@Number
+4. El avg del enrollment
+avg(/Course_Catalog/Department/Course/@Enrollment)
+5. Que departamentos tienen mas de 5 cursos
+/Course_Catalog/Department[count(Course) > 5]/Title/text()
+
+
+Punto 1.E 
+
+<?xml version="1.0"?>
+
+<!DOCTYPE Course_Catalog [
+	<!ELEMENT Course_Catalog (Department*)>
+	
+	<!ELEMENT Department (Title,Chair,Course*)>	
+	<!ATTLIST Department
+		Code CDATA #REQUIRED>
+		
+	<!ELEMENT Title (#PCDATA)>
+	
+	<!ELEMENT Chair (Professor)>
+	<!ELEMENT Professor (First_Name,Middle_Initial?,Last_Name)>
+	<!ELEMENT First_Name (#PCDATA)>
+	<!ELEMENT Middle_Initial (#PCDATA)>
+	<!ELEMENT Last_Name (#PCDATA)>
+
+	<!ATTLIST Course
+		Number CDATA #REQUIRED
+		Enrollment CDATA #IMPLIED>
+	<!ELEMENT Course (Title,Description?,Instructors,Prerequisites?)>
+	
+	<!ELEMENT Description (#PCDATA)>
+	
+	<!ELEMENT Instructors ((Lecturer|Professor)*)>
+	<!ELEMENT Lecturer (First_Name,Middle_Initial?,Last_Name)>
+	
+	<!ELEMENT Prerequisites (Prereq*)>
+	<!ELEMENT Prereq (#PCDATA)>
+
+]>
+
+Punto 1.F 
+
+<?xml version="1.0"?>
+<Course_Catalog>
+<Department Code="CS">
+<Title>Computer Science</Title>
+<Chair>
+<Professor>
+<First_Name>Jennifer</First_Name>
+<Last_Name>Widom</Last_Name>
+</Professor>
+</Chair>
+<Course Number="CS106A" Enrollment="1070">
+<Title>Programming Methodology</Title>
+<Description>
+Introduction to the engineering of computer applications emphasizing modern software engineering principles.
+</Description>
+<Instructors>
+<Lecturer>
+<First_Name>Jerry</First_Name>
+<Middle_Initial>R.</Middle_Initial>
+<Last_Name>Cain</Last_Name>
+</Lecturer>
+<Professor>
+<First_Name>Eric</First_Name>
+<Last_Name>Roberts</Last_Name>
+</Professor>
+<Professor>
+<First_Name>Mehran</First_Name>
+<Last_Name>Sahami</Last_Name>
+</Professor>
+</Instructors>
+</Course>
+<Course Number="CS106B" Enrollment="620">
+<Title>Programming Abstractions</Title>
+<Description>Abstraction and its relation to programming.</Description>
+<Instructors>
+<Professor>
+<First_Name>Eric</First_Name>
+<Last_Name>Roberts</Last_Name>
+</Professor>
+<Lecturer>
+<First_Name>Jerry</First_Name>
+<Middle_Initial>R.</Middle_Initial>
+<Last_Name>Cain</Last_Name>
+</Lecturer>
+</Instructors>
+<Prerequisites>
+<Prereq>CS106A</Prereq>
+</Prerequisites>
+</Course>
+<Course Number="CS107" Enrollment="500">
+<Title>Computer Organization and Systems</Title>
+<Description>
+Introduction to the fundamental concepts of computer systems.
+</Description>
+<Instructors>
+<Lecturer>
+<First_Name>Julie</First_Name>
+<Last_Name>Zelenski</Last_Name>
+</Lecturer>
+</Instructors>
+<Prerequisites>
+<Prereq>CS106B</Prereq>
+</Prerequisites>
+</Course>
+<Course Number="CS109" Enrollment="280">
+<Title>
+Introduction to Probability for Computer Scientists
+</Title>
+<Instructors>
+<Professor>
+<First_Name>Mehran</First_Name>
+<Last_Name>Sahami</Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>CS106B</Prereq>
+</Prerequisites>
+</Course>
+<Course Number="CS124" Enrollment="60">
+<Title>From Languages to Information</Title>
+<Description>
+Natural language processing. Cross-listed as LING180.
+</Description>
+<Instructors>
+<Professor>
+<First_Name>Dan</First_Name>
+<Last_Name>Jurafsky</Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>CS107</Prereq>
+<Prereq>CS109</Prereq>
+</Prerequisites>
+</Course>
+<Course Number="CS143" Enrollment="90">
+<Title>Compilers</Title>
+<Description>
+Principles and practices for design and implementation of compilers and interpreters.
+</Description>
+<Instructors>
+<Professor>
+<First_Name>Alex</First_Name>
+<Middle_Initial>S.</Middle_Initial>
+<Last_Name>Aiken</Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>CS107</Prereq>
+</Prerequisites>
+</Course>
+<Course Number="CS145" Enrollment="130">
+<Title>Introduction to Databases</Title>
+<Description>
+Database design and use of database management systems for applications.
+</Description>
+<Instructors>
+<Professor>
+<First_Name>Jennifer</First_Name>
+<Last_Name>Widom</Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>CS107</Prereq>
+</Prerequisites>
+</Course>
+<Course Number="CS221" Enrollment="180">
+<Title>Artificial Intelligence: Principles and Techniques</Title>
+<Instructors>
+<Professor>
+<First_Name>Andrew</First_Name>
+<Last_Name>Ng</Last_Name>
+</Professor>
+<Professor>
+<First_Name>Sebastian</First_Name>
+<Last_Name>Thrun</Last_Name>
+</Professor>
+</Instructors>
+</Course>
+<Course Number="CS228" Enrollment="110">
+<Title>
+Structured Probabilistic Models: Principles and Techniques
+</Title>
+<Description>
+Using probabilistic modeling languages to represent complex domains.
+</Description>
+<Instructors>
+<Professor>
+<First_Name>Daphne</First_Name>
+<Last_Name>Koller</Last_Name>
+</Professor>
+</Instructors>
+</Course>
+<Course Number="CS229" Enrollment="320">
+<Title>Machine Learning</Title>
+<Description>
+A broad introduction to machine learning and statistical pattern recognition.
+</Description>
+<Instructors>
+<Professor>
+<First_Name>Andrew</First_Name>
+<Last_Name>Ng</Last_Name>
+</Professor>
+</Instructors>
+</Course>
+
+</Department>
+<Department Code="EE">
+<Title>Electrical Engineering</Title>
+<Chair>
+<Professor>
+<First_Name>Mark</First_Name>
+<Middle_Initial>A.</Middle_Initial>
+<Last_Name>Horowitz</Last_Name>
+</Professor>
+</Chair>
+<Course Number="EE108A">
+<Title>Digital Systems I</Title>
+<Description>Digital circuit, logic, and system design.</Description>
+<Instructors>
+<Professor>
+<First_Name>Subhasish</First_Name>
+<Last_Name>Mitra</Last_Name>
+</Professor>
+</Instructors>
+</Course>
+<Course Number="EE108B">
+<Title>Digital Systems II</Title>
+<Description>The design of processor-based digital systems.</Description>
+<Instructors>
+<Professor>
+<First_Name>William</First_Name>
+<Middle_Initial>J.</Middle_Initial>
+<Last_Name>Dally</Last_Name>
+</Professor>
+<Professor>
+<First_Name>Oyekunle</First_Name>
+<Last_Name>Olukotun</Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>EE108A</Prereq>
+<Prereq>CS106B</Prereq>
+</Prerequisites>
+</Course>
+</Department>
+<Department Code="LING">
+<Title>Linguistics</Title>
+<Chair>
+<Professor>
+<First_Name>Beth</First_Name>
+<Last_Name>Levin</Last_Name>
+</Professor>
+</Chair>
+<Course Number="LING180" Enrollment="60">
+<Title>From Languages to Information</Title>
+<Description>
+Natural language processing. Cross-listed as CS124.
+</Description>
+<Instructors>
+<Professor>
+<First_Name>Dan</First_Name>
+<Last_Name>Jurafsky</Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>CS107</Prereq>
+<Prereq>CS109</Prereq>
+</Prerequisites>
+</Course>
+</Department>
+<Department Code="LOG">
+<Title> Logica </Title>
+<Chair>
+<Professor>
+<First_Name> Gerardo </First_Name>
+<Last_Name> Ospina </Last_Name>
+</Professor>
+</Chair>
+<Course Number="LOG101" Enrollment= "120">
+<Title> Modelos Matemáticos para la informatica</Title>
+<Description>Introduccion a la logica informal</Description>
+<Instructors>
+<Professor>
+<First_Name> Wilmer </First_Name>
+<Last_Name> Garzon </Last_Name>
+</Professor>
+<Lecturer>
+<First_Name> Raul </First_Name>
+<Last_Name> Chaparro </Last_Name>
+</Lecturer>
+</Instructors>
+</Course>
+<Course Number="LOG102">
+<Title> Logica Calculativa </Title>
+<Description> Paso de logica informal a sistemas formales y demostraciones por medio de derivaciones</Description>
+<Instructors>
+<Professor>
+<First_Name> Gerardo </First_Name>
+<Last_Name> Ospina </Last_Name>
+</Professor>
+</Instructors>
+<Prerequisites>
+<Prereq>LOG101</Prereq>
+</Prerequisites>
+</Course>
+
+<Course Number="LOG103" Enrollment= "300">
+<Title> Matemáticas Discretas </Title>
+<Instructors>
+<Lecturer>
+<First_Name> Jaime </First_Name>
+<Last_Name> Bohorquez </Last_Name>
+</Lecturer>
+</Instructors>
+<Prerequisites>
+<Prereq>LOG102</Prereq>
+</Prerequisites>
+</Course>
+</Department>
+</Course_Catalog>
+
+Punto 2.1
+<?xml version="1.0"?>
+
+DTD
+	<!DOCTYPE Tdetalle [
+		<!ELEMENT Tdetalle (Lugar,Clima,Descargos,Consecuencias)>
+		
+		<!ELEMENT Lugar (#PCDATA)>	
+
+		<!ELEMENT Clima (#PCDATA)>
+		<!ELEMENT Descargos (Descargo*)>
+		<!ELEMENT Descargo (#PCDATA)>
+		<!ATTLIST Descargo
+				Numero CDATA #REQUIRED>
+		<!ELEMENT Consecuencias (Consecuencia*)>
+		<!ELEMENT Consecuencia (#PCDATA)>
+		<!ATTLIST Consecuencia
+			Numero CDATA #REQUIRED>
+	]>
+
+XML OK
+	<Tdetalle>
+		<Lugar>Campus</Lugar>
+		<Clima>Lluvioso</Clima>
+		<Descargos>
+			<Descargo Numero="1001">
+				Yo john Ibañez me cai en el campus.
+			</Descargo>
+			<Descargo Numero="1002">
+				Yo john Ibañez con Laura Rodriguez estabamos jugando en el campus y debido a las fuertes lluvias
+				nos caimos.
+			</Descargo>
+		</Descargos>
+		<Consecuencias>
+			<Consecuencia Numero= "101">
+				Heridos gravemente afectados.
+			</Consecuencia>
+			<Consecuencia Numero= "102">
+				Daños en el coliseo.
+			</Consecuencia>
+		</Consecuencias>
+		
+	</Tdetalle>
+	
+XML NO OK
+
+	No es un XML correcto ya que en el DTD se esta haciendo una especificación con que Consecuencia debe tener un Numero,
+	al no tenerlo se genera un error de que el atributo es requerido.
+	<Tdetalle>
+		<Lugar>Campus</Lugar>
+		<Clima>Lluvioso</Clima>
+		<Descargos>
+			<Descargo Numero="1001">
+				Yo john Ibañez me cai en el campus.
+			</Descargo>
+			<Descargo Numero="1002">
+				Yo john Ibañez con Laura Rodriguez estabamos jugando en el campus y debido a las fuertes lluvias
+				nos caimos.
+			</Descargo>
+		</Descargos>
+		<Consecuencias>
+			<Consecuencia Numero= "101">
+				Heridos gravemente afectados.
+			</Consecuencia>
+			<Consecuencia>
+			</Consecuencia>
+		</Consecuencias>
+		
+	</Tdetalle>
+
+Punto 2.2
+INSERT INTO incidentes VALUES (001,TO_DATE('2001/07/12','yyyy/mm/dd'),'caida de un arbol en el campus');
+INSERT INTO incidentes VALUES (002,TO_DATE('2005/09/20','yyyy/mm/dd'),'accidente en el edificio de la parte administrativa');
+INSERT INTO incidentes VALUES (003,TO_DATE('2016/10/17','yyyy/mm/dd'),'ventas ilegales en el campus');
+
+INSERT INTO zonas VALUES ('zona 1',001);
+INSERT INTO zonas VALUES ('zona 1',002);
+INSERT INTO zonas VALUES ('zona 4',001);
+
+INSERT INTO accidentes VALUES ('AR',20,
+'<Tdetalle>
+	<Lugar>Campus</Lugar>
+	<Clima>Soleado</Clima>
+	<Descargos>
+		<Descargo Numero="2001">
+			Yo Andres Duran me encontraba realizando ventas ilegales a los
+			estudiantes en el campus.
+		</Descargo>
+		<Descargo Numero="2002">
+			Yo Andres Duran me comprometo a dejar de lado este tipo de 
+			ventas en la Universidad.
+		</Descargo>
+	</Descargos>
+	<Consecuencias>
+		<Consecuencia Numero= "201">
+			Llamado de atención.
+		</Consecuencia>
+		<Consecuencia Numero= "202">
+			Estudiante en periodo de prueba.
+		</Consecuencia>
+	</Consecuencias>
+</Tdetalle>',003);
+INSERT INTO accidentes VALUES ('RI',50,
+'<Tdetalle>
+	<Lugar>Campus</Lugar>
+	<Clima>Lluvioso</Clima>
+	<Descargos>
+		<Descargo Numero="1001">
+			Yo Andrea Toro me encontraba en el campus cuando un arbol se cayo y sufri algunos golpes.
+		</Descargo>
+	</Descargos>
+	<Consecuencias>
+		<Consecuencia Numero= "101">
+			Heridos gravemente afectados.
+		</Consecuencia>
+		<Consecuencia Numero= "102">
+			Daños en el coliseo.
+		</Consecuencia>
+	</Consecuencias>	
+</Tdetalle>',001);
+INSERT INTO accidentes VALUES ('EI',6,null,002);
+
+INSERT INTO personas VALUES (1001,'Alejo Rocha','Alejo.rocha@mail.escuelaing.edu.co');
+INSERT INTO personas VALUES (1002,'Javier Bermudez','javier.bermudez@mail.escuelaing.edu.co');
+INSERT INTO personas VALUES (1003,'Andres  Duran','andres.duran@mail.escuelaing.edu.co');
+INSERT INTO personas VALUES (1004,'David Rodriguez','david.rodriguez@mail.escuelaing.edu.co');
+INSERT INTO personas VALUES (1005,'Maria Casallas','maria.casallas@mail.escuelaing.edu.co');
+INSERT INTO personas VALUES (1006,'Andrea Toro','andrea.toro@mail.escuelaing.edu.co');
+
+INSERT INTO administrativo VALUES ('I',1001);
+INSERT INTO administrativo VALUES ('I',1004);
+INSERT INTO administrativo VALUES ('F',1006);
+
+INSERT INTO profesores VALUES ('Doctorado',1001);
+INSERT INTO profesores VALUES ('Maestria',1006);
+INSERT INTO profesores VALUES ('Posgrado',1004);
+
+INSERT INTO areas VALUES ('P',1006);
+INSERT INTO areas VALUES ('I',1001);
+INSERT INTO areas VALUES ('C',1004);
+
+INSERT INTO estudiantes VALUES (1002,9,null);
+INSERT INTO estudiantes VALUES (1003,5,1006);
+INSERT INTO estudiantes VALUES (1005,1,null);
+
+INSERT INTO causas VALUES ('101','Incidente leve','condiciones ambientales');
+INSERT INTO causas VALUES ('102','Estado estudiantil','conflictos laborales');
+INSERT INTO causas VALUES ('103','Incidente grave','bienestar universitario');
+
+INSERT INTO tiene VALUES (001,'101');
+INSERT INTO tiene VALUES (002,'102');
+INSERT INTO tiene VALUES (003,'103');
+
+INSERT INTO condiciones VALUES (4,001);
+INSERT INTO condiciones VALUES (5,003);
+INSERT INTO condiciones VALUES (3,002);
+
+INSERT INTO es_causa VALUES (001,001);
+INSERT INTO es_causa VALUES (002,002);
+INSERT INTO es_causa VALUES (003,003);
+
+INSERT INTO riesgo VALUES ('010','Accidente profesor',40);
+INSERT INTO riesgo VALUES ('020','Disturbios',20);
+INSERT INTO riesgo VALUES ('030','Meteorológicos',60);
+
+INSERT INTO esta_involucrado VALUES ('lesion',1001,002);
+INSERT INTO esta_involucrado VALUES ('Sancion',1003,003);
+INSERT INTO esta_involucrado VALUES ('Un estudiante lesionado',1006,001); 
+
+INSERT INTO investigacion VALUES ('I',null,'URGEN',3,001,1001);
+INSERT INTO investigacion VALUES ('P',TO_DATE('2001/07/12','yyyy/mm/dd'),'URG',5,003,1006);
+INSERT INTO investigacion VALUES ('C',null,'IMPOR',2,002,1004);
+
+INSERT INTO es_resultado VALUES (001,'030',100);
+INSERT INTO es_resultado VALUES (002,'010',099);
+INSERT INTO es_resultado VALUES (003,'020',098);
+ 
+Punto 2.3
+SELECT A.INCIDENTE,T.concecuencia
+FROM  ACCIDENTES A, XMLTABLE('/Tdetalle/Consecuencias/Consecuencia'
+						passing A.detalle
+						columns concecuencia VARCHAR(200) PATH  'text()') T;  
+Punto 2.4
+
+UPDATE ACCIDENTES SET DETALLE= '<Tdetalle>
+	<Lugar>Campus</Lugar>
+	<Clima>Soleado</Clima>
+	<Personas>
+		<Persona Codigo= "1003" Nombre= "Andres  Duran">
+			<Descargos>
+				<Descargo Numero="2001">
+					Yo Andres Duran me encontraba realizando ventas ilegales a los
+					estudiantes en el campus.
+				</Descargo>
+				<Descargo Numero="2002">
+					Yo Andres Duran me comprometo a dejar de lado este tipo de 
+					ventas en la Universidad.
+				</Descargo>
+			</Descargos>
+			<Consecuencias>
+				<Consecuencia Numero= "201">
+					Llamado de atención.
+				</Consecuencia>
+				<Consecuencia Numero= "202">
+					Estudiante en periodo de prueba.
+				</Consecuencia>
+			</Consecuencias>
+		</Persona>
+	</Personas>
+	
+</Tdetalle>' WHERE INCIDENTE= 003;
+
+UPDATE ACCIDENTES SET DETALLE= '<Tdetalle>
+	<Lugar>Campus</Lugar>
+	<Clima>Lluvioso</Clima>
+	<Personas>
+		<Persona Codigo= "1006" Nombre= "Andrea Toro">
+			<Atencion_Medica>
+				<Diagnostico Doctor="Carlos Lopez" Numero="223561" Descripcion= "Lesiones leves en parte superior del cuerpo.">        
+					<Fracturas>
+						<Fractura Tipo="Grave" Parte_Cuerpo= "Brazo derecho">
+							<Recomendacion>
+								Tomar pastas cuando sienta dolor.
+							</Recomendacion>
+							<Recomendacion>
+								Ir a terapia durante el proximo mes.
+							</Recomendacion>
+						</Fractura>
+						<Fractura Tipo="Leve" Parte_Cuerpo= "Columna"> </Fractura>
+					</Fracturas>
+				</Diagnostico>
+				<Diagnostico Doctor="Laura Jimenez" Numero="234523" Descripcion= "Golpe grave en la cabeza.">
+					<Fracturas>
+						<Fractura Tipo="Grave" Parte_Cuerpo= "Cabeza y cuello">
+							<Recomendacion>
+								Tomar pastas cuando sienta dolor.
+							</Recomendacion>
+							<Recomendacion>
+								Ir a tomar tomografias y asistir a un medico especialista.
+							</Recomendacion>
+							<Recomendacion>
+								Asistir a terapias durante los proximos 3 meses.
+							</Recomendacion>
+						</Fractura>
+					</Fracturas>
+				</Diagnostico>
+			</Atencion_Medica>
+			<Descargos>
+				<Descargo Numero="1001">
+					Yo Andrea Toro me encontraba en el campus cuando un arbol se cayo y sufri algunos golpes.
+				</Descargo>
+			</Descargos>
+			<Consecuencias>
+				<Consecuencia Numero= "101">
+					Heridos gravemente afectados.
+				</Consecuencia>
+				<Consecuencia Numero= "102">
+					Daños en el coliseo.
+				</Consecuencia>
+			</Consecuencias>
+		</Persona>
+	</Personas>
+	
+</Tdetalle>' WHERE INCIDENTE= 001;
+
+
+
+<?xml version="1.0"?>
+
+<!DOCTYPE Tdetalle[
+	<!ELEMENT Tdetalle (Lugar,Clima,Personas)>
+	
+	<!ELEMENT Lugar (#PCDATA)>	
+
+	<!ELEMENT Clima (#PCDATA)>
+	
+	<!ELEMENT Personas (Persona*)>
+	<!ELEMENT Persona (Atencion_Medica?,Descargos,Consecuencias)>
+	<!ATTLIST Persona
+		Codigo CDATA #REQUIRED
+		Nombre CDATA #REQUIRED>	
+	<!ELEMENT Atencion_Medica (Diagnostico*)>
+	<!ELEMENT Diagnostico (Fracturas)>
+    <!ATTLIST Diagnostico
+        Doctor CDATA #REQUIRED
+        Numero CDATA #REQUIRED
+		Descripcion CDATA #REQUIRED>
+    <!ELEMENT Fracturas (Fractura*)>
+	<!ELEMENT Fractura (Recomendacion*)>
+	<!ATTLIST Fractura
+			Tipo (Grave | Leve) #REQUIRED
+			Parte_Cuerpo CDATA #REQUIRED>
+    <!ELEMENT Recomendacion (#PCDATA)>
+	<!ELEMENT Descargos (Descargo*)>
+	<!ELEMENT Descargo (#PCDATA)>
+	<!ATTLIST Descargo
+			Numero CDATA #REQUIRED>
+	<!ELEMENT Consecuencias (Consecuencia*)>
+	<!ELEMENT Consecuencia (#PCDATA)>
+	<!ATTLIST Consecuencia
+		Numero CDATA #REQUIRED>
+]>
+
+
+<Tdetalle>
+	<Lugar>Campus</Lugar>
+	<Clima>Lluvioso</Clima>
+	<Personas>
+		<Persona Codigo= "1006" Nombre= "Andrea Toro">
+			<Atencion_Medica>
+				<Diagnostico Doctor="Carlos Lopez" Numero="223561" Descripcion= "Lesiones leves en parte superior del cuerpo.">        
+					<Fracturas>
+						<Fractura Tipo="Grave" Parte_Cuerpo= "Brazo derecho">
+							<Recomendacion>
+								Tomar pastas cuando sienta dolor.
+							</Recomendacion>
+							<Recomendacion>
+								Ir a terapia durante el proximo mes.
+							</Recomendacion>
+						</Fractura>
+						<Fractura Tipo="Leve" Parte_Cuerpo= "Columna"> </Fractura>
+					</Fracturas>
+				</Diagnostico>
+				<Diagnostico Doctor="Laura Jimenez" Numero="234523" Descripcion= "Golpe grave en la cabeza.">
+					<Fracturas>
+						<Fractura Tipo="Grave" Parte_Cuerpo= "Cabeza y cuello">
+							<Recomendacion>
+								Tomar pastas cuando sienta dolor.
+							</Recomendacion>
+							<Recomendacion>
+								Ir a tomar tomografias y asistir a un medico especialista.
+							</Recomendacion>
+							<Recomendacion>
+								Asistir a terapias durante los proximos 3 meses.
+							</Recomendacion>
+						</Fractura>
+					</Fracturas>
+				</Diagnostico>
+			</Atencion_Medica>
+			<Descargos>
+				<Descargo Numero="1001">
+					Yo Andrea Toro me encontraba en el campus cuando un arbol se cayo y sufri algunos golpes.
+				</Descargo>
+			</Descargos>
+			<Consecuencias>
+				<Consecuencia Numero= "101">
+					Heridos gravemente afectados.
+				</Consecuencia>
+				<Consecuencia Numero= "102">
+					Daños en el coliseo.
+				</Consecuencia>
+			</Consecuencias>
+		</Persona>
+	</Personas>
+	
+</Tdetalle>
+
+
+Punto 2.5
+Consulta 
+	Consultar la persona que tiene  fractura graves en los accidentes:
+	SELECT EXTRACT(detalle,'/Tdetalle/Personas/Persona[Atencion_Medica/Diagnostico/Fracturas/Fractura/@Tipo="Grave"]/@Nombre') FROM accidentes;
+	
+	
+	
+DB
+
+CREATE TABLE zonas(zona VARCHAR(10)NOT NULL,incidente NUMBER(5)NOT NULL);
+CREATE TABLE es_causa(cod_incidente NUMBER(5) NOT NULL, aci_incidente NUMBER(5) NOT NULL);
+CREATE TABLE tiene(numero NUMBER(5)NOT NULL,codigo VARCHAR(3) NOT NULL);
+CREATE TABLE investigacion(area CHAR(1),fecha DATE NULL,objetivo VARCHAR(5),impacto NUMBER(1) ,accidente NUMBER(5) NOT NULL,profesor NUMBER(5));
+CREATE table es_resultado(accidente NUMBER(5)NOT NULL,codigo VARCHAR(3)NOT NULL,explica NUMBER(3));
+CREATE TABLE riesgo(codigo varchar(3) NOT NULL,nombre varchar(20),probabilidad NUMBER(3));
+CREATE TABLE condiciones(riesgo NUMBER(1) ,incidentes NUMBER(5) NOT NULL);
+CREATE TABLE accidentes(estado CHAR(2) ,investigado NUMBER(3),detalle XMLTYPE NULL,incidente NUMBER(5) NOT NULL);
+CREATE TABLE incidentes(numero NUMBER(5) NOT NULL,fecha DATE, descripcion VARCHAR(200));
+CREATE TABLE esta_involucrado(consecuencia VARCHAR(50),codigo NUMBER(5)NOT NULL,accidente NUMBER(5)NOT NULL);
+CREATE TABLE administrativo(contrato CHAR(1),codigo NUMBER(5)NOT NULL);
+CREATE TABLE estudiantes(codigo NUMBER(5) NOT NULL,semestre NUMBER(2),profesor NUMBER(5) NULL);
+CREATE TABLE profesores(formacion VARCHAR(10),codigo NUMBER(5)NOT NULL);
+CREATE TABLE areas(area CHAR(1)NOT NULL,codigo NUMBER(5)NOT NULL);
+CREATE TABLE personas(codigo NUMBER(5)NOT NULL,nombre VARCHAR(50),correo VARCHAR(50)NOT NULL);
+CREATE TABLE causas(codigo VARCHAR(3)NOT NULL,tipo VARCHAR(30) ,nombre VARCHAR(50));
+
+
+ALTER TABLE personas MODIFY (correo CHECK(correo LIKE '%escuelaing.edu.co' ));
+ALTER TABLE causas MODIFY (tipo CHECK(tipo LIKE 'E%' OR tipo LIKE 'I%'));
+ALTER TABLE areas MODIFY(area CHECK (area='I' OR area='P' OR area='C' ));
+ALTER TABLE estudiantes MODIFY (semestre CHECK(semestre>=1));
+ALTER TABLE administrativo MODIFY(contrato CHECK(contrato='F' OR contrato ='I'));
+ALTER TABLE accidentes MODIFY (investigado CHECK(investigado>-1 AND investigado<101));
+ALTER TABLE accidentes MODIFY(estado CHECK (estado = 'AR' OR estado='EI' OR estado='RI'));
+ALTER TABLE incidentes MODIFY(numero CHECK (numero>0));
+ALTER TABLE condiciones MODIFY (riesgo CHECK(riesgo<6 AND riesgo>0));
+ALTER TABLE investigacion MODIFY (area  CHECK (area='I' OR area='P' OR area='C'));
+ALTER TABLE investigacion MODIFY(impacto CHECK(impacto<6 AND impacto>0));
+ALTER TABLE riesgo MODIFY (probabilidad CHECK(probabilidad>-1 AND probabilidad<101));
+ALTER TABLE es_resultado MODIFY (explica CHECK(explica>-1 AND explica<101));
+ALTER TABLE zonas MODIFY (zona CHECK(zona LIKE '% %'));
+
+
+
+ALTER TABLE incidentes ADD CONSTRAINT PK_incidentes PRIMARY KEY(numero);
+ALTER TABLE zonas ADD CONSTRAINT PK_zonas PRIMARY KEY(zona,incidente);
+ALTER TABLE condiciones ADD CONSTRAINT PK_condiciones PRIMARY KEY(incidentes);
+ALTER TABLE tiene ADD CONSTRAINT PK_tiene PRIMARY KEY(numero,codigo);
+ALTER TABLE causas ADD CONSTRAINT PK_causa PRIMARY KEY(codigo);
+ALTER TABLE accidentes ADD CONSTRAINT PK_accidente PRIMARY KEY(incidente);
+ALTER TABLE es_causa ADD CONSTRAINT PK_esCausa PRIMARY KEY(cod_incidente,aci_incidente);
+ALTER TABLE es_resultado ADD CONSTRAINT PK_esResultado PRIMARY KEY(codigo,accidente); 
+ALTER TABLE esta_involucrado ADD CONSTRAINT PK_estaInvolucrado PRIMARY KEY(codigo,accidente);
+AlTER TABLE administrativo ADD CONSTRAINT PK_administrativo PRIMARY KEY(codigo);
+ALTER TABLE personas ADD CONSTRAINT PK_personas PRIMARY KEY(codigo);
+ALTER TABLE investigacion ADD CONSTRAINT PK_investigacion PRIMARY KEY(accidente);
+ALTER TABLE riesgo ADD CONSTRAINT PK_riesgo PRIMARY KEY(codigo);
+ALTER TABLE areas ADD CONSTRAINT PK_areas PRIMARY KEY(area,codigo);
+ALTER TABLE estudiantes ADD CONSTRAINT PK_estudiantes PRIMARY KEY(codigo);
+ALTER TABLE profesores ADD CONSTRAINT PK_profesores PRIMARY KEY(codigo);
+
+  
+ALTER TABLE investigacion ADD CONSTRAINT UK_investigacion UNIQUE (objetivo);
+ALTER TABLE personas ADD CONSTRAINT UK_personas UNIQUE (correo);
+
+
+ALTER TABLE tiene ADD CONSTRAINT FK_numero FOREIGN KEY (numero) 
+REFERENCES incidentes(numero);
+ALTER TABLE tiene ADD CONSTRAINT FK_codigo FOREIGN KEY(codigo)
+REFERENCES causas(codigo);
+ALTER TABLE zonas ADD CONSTRAINT FK_incidentes FOREIGN KEY(incidente)
+REFERENCES incidentes(numero);
+ALTER TABLE condiciones ADD CONSTRAINT FK_incidente_condic FOREIGN KEY(incidentes)
+REFERENCES incidentes(numero);
+ALTER TABLE es_causa ADD CONSTRAINT FK_codigoincidente FOREIGN KEY(cod_incidente)
+REFERENCES condiciones(incidentes);
+ALTER TABLE es_causa ADD CONSTRAINT FK_acincidente FOREIGN KEY(aci_incidente)
+REFERENCES accidentes(incidente);
+ALTER TABLE accidentes ADD CONSTRAINT FK_accincidentes FOREIGN KEY(incidente) 
+REFERENCES incidentes(numero);
+ALTER TABLE es_resultado ADD CONSTRAINT FK_resulcodigo FOREIGN KEY(codigo)
+REFERENCES riesgo(codigo);
+ALTER TABLE es_resultado ADD CONSTRAINT FK_resaccidente FOREIGN KEY(accidente)
+REFERENCES investigacion(accidente);
+ALTER TABLE investigacion ADD CONSTRAINT FK_accidente FOREIGN KEY(accidente)
+REFERENCES accidentes(incidente);
+ALTER TABLE investigacion ADD CONSTRAINT FK_invprofesor FOREIGN KEY(profesor)
+REFERENCES profesores(codigo);
+ALTER TABLE profesores ADD CONSTRAINT FK_profesor FOREIGN KEY(codigo)
+REFERENCES administrativo(codigo);
+ALTER TABLE esta_involucrado ADD CONSTRAINT FK_adminis FOREIGN KEY(codigo)
+REFERENCES personas(codigo);
+ALTER TABLE esta_involucrado ADD CONSTRAINT FK_adminisacc FOREIGN KEY(accidente)
+REFERENCES accidentes(incidente);
+ALTER TABLE administrativo ADD CONSTRAINT FK_peradmin FOREIGN KEY(codigo)
+REFERENCES personas(codigo);
+ALTER TABLE estudiantes ADD CONSTRAINT FK_estcodigo FOREIGN KEY(codigo)
+REFERENCES personas(codigo);
+ALTER TABLE estudiantes ADD CONSTRAINT FK_estprofesor FOREIGN KEY(profesor)
+REFERENCES profesores(codigo);
+ALTER TABLE areas ADD CONSTRAINT FK_area FOREIGN KEY(codigo)
+REFERENCES profesores(codigo);
